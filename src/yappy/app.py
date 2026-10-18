@@ -13,6 +13,7 @@ class App:
     def __init__(self, verbose=False):
         self.__commands = {}
         self.__event_handlers = {}
+        self.__aliases = {}
 
         self.user  = None
         self._token = None
@@ -42,22 +43,50 @@ class App:
             is_bot=True
         )
 
-    def get_user(
+    async def fetch_user(
         self,
-        id,
-        _data
-    ):
-        if id in self.__cache["users"]:
-            return self.__cache["users"]
-        user = User(
-            name=_data["author"],
-            id=id
+        id
+    ) -> User:
+        _user_data = await api.get(
+            self.session, f"/users/{id}"
+        )["user"]
+
+        return User(
+            id=id,
+            name = _user_data["username"],
+            display_name = _user_data["display_name"],
+            badges = _user_data["badges"],
+            created_at = _user_data["created_at"],
+            bio = _user_data["bio"],
+            pronouns = _user_data["pronouns"],
+            profile = Profile(
+                avatar = "https://files.yapper.website/avatars/"+_user_data["avatar_path"]
+                banner = "https://files.yapper.website/banners/"+_user_data["banner_path"]
+            )
         )
 
-        self.__cache[id]=user
+    async def find_user(
+        self,
+        id,
+    ) -> User:
+        user = get_user(id)
+
+        if user is None:
+            user = await self.fetch_user(
+                id
+            )
+
+            self.__cache["users"][id]=user
         return user
 
-    def _build_context(self, ev):
+    def get_user(
+        self, id
+    ):
+        if id in self.__cache["users"]:
+            return self.__cache["users"][id]
+        return None
+
+    async def _build_context(self, ev):
         d = ev["data"]
         
         channel=Channel(
@@ -72,7 +101,7 @@ class App:
             message=Message(
                 self,
                 id=d["id"],
-                author=self.get_user(
+                author=await self.find_user(
                     d["author_id"], d
                 ),
                 channel=channel,
@@ -91,13 +120,13 @@ class App:
             if (cmd_name:=d.get("command")):
                 if cmd_name in self.__commands:
                     await self.__commands[cmd_name].func(
-                        self._build_context(
+                        await self._build_context(
                             ev
                         )
                     )
                 elif cmd_name in self.__aliases:
-                    await self.__aliases[cmd_name](
-                        self._build_context(
+                    await self.__aliases[cmd_name].func(
+                        await self._build_context(
                             ev
                         )
                     )
@@ -107,7 +136,7 @@ class App:
                     )
             else:
                 await self.__event_handlers[ev["type"]](
-                    self._build_context(
+                    await self._build_context(
                         ev
                     )
                 )

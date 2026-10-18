@@ -43,7 +43,7 @@ async def on_message(ctx):
     if ctx.is_bot:
         return
 
-    if ctx.content.lower.startswith("hello"):
+    if ctx.message.content.lower().startswith("hello"):
         await ctx.reply("Hi!")
 
 

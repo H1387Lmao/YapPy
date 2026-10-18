@@ -376,6 +376,23 @@ wheels = [
 ]
 
 [[package]]
+name = "python-yappy"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "aiohttp" },
+    { name = "load-dotenv" },
+    { name = "uv-build" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "aiohttp", specifier = ">=3.14.5" },
+    { name = "load-dotenv", specifier = ">=0.1.0" },
+    { name = "uv-build", specifier = ">=0.13.1" },
+]
+
+[[package]]
 name = "uv-build"
 version = "0.13.1"
 source = { registry = "https://pypi.org/simple" }
@@ -399,23 +416,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/8f/70/52620c0bf6c65ab526b496a5ca1bebd1d5de58170e319cdaaf204d92ca45/uv_build-0.13.1-py3-none-win32.whl", hash = "sha256:682c201c959f595f7af895519f9f101ffcc95744a740e503a11a034f1082e814", size = 1269412, upload-time = "2026-10-14T05:13:04.847Z" },
     { url = "https://files.pythonhosted.org/packages/32/90/c431bfb7d0e2a8412960c9610e74fc785b8e23df11deaf4682187ca925dd/uv_build-0.13.1-py3-none-win_amd64.whl", hash = "sha256:090b085334865ae214b57e7f696d049c7c65ebfaecf479fc542a6f0bb6b6db14", size = 1316521, upload-time = "2026-10-14T05:13:05.976Z" },
     { url = "https://files.pythonhosted.org/packages/ad/03/339b69f290569bac3b94afe8851b0ef0d39d018fe0ed1c478386670a9945/uv_build-0.13.1-py3-none-win_arm64.whl", hash = "sha256:adfbf5c3150ccbaa1e70d44a3775cda7bd7b71c2596af07a9d741e16c16da26a", size = 1246483, upload-time = "2026-10-14T05:13:07.141Z" },
-]
-
-[[package]]
-name = "yappy"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "aiohttp" },
-    { name = "load-dotenv" },
-    { name = "uv-build" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "aiohttp", specifier = ">=3.14.5" },
-    { name = "load-dotenv", specifier = ">=0.1.0" },
-    { name = "uv-build", specifier = ">=0.13.1" },
 ]
 
 [[package]]

@@ -1,5 +1,7 @@
 from .consts import BASE_URL
 import aiohttp
+import random
+import asyncio
 
 async def api_push(session: aiohttp.ClientSession, method: str, path: str, body=None, tries=3):
     headers = {
@@ -25,7 +27,7 @@ async def api_push(session: aiohttp.ClientSession, method: str, path: str, body=
         if 0 < wait <= 60 and tries > 1:
             print(f"{'busy' if busy else 'rate limited'}, retrying in {wait}s")
             await asyncio.sleep(wait * (1 + random.random() * 0.5))
-            return await api(session, method, path, body, tries - 1)
+            return await api_push(session, method, path, body, tries - 1)
                     
         raise RuntimeError(f"{method} {path} failed ({e.status}): {msg or e.message}") from None
         
