@@ -2,7 +2,7 @@
 
 **A Python API binding for Yapper.**
 
-YapPy brings a Python-friendly interface to [Yapper](https://yapper.example), a chat platform similar to Discord. It provides familiar models, event handlers, and command decorators so you can build Yapper bots with straightforward asynchronous Python.
+YapPy brings a Python-friendly interface to [Yapper](https://yapper.website), a chat platform similar to Discord. It provides familiar models, event handlers, and command decorators so you can build Yapper bots with straightforward asynchronous Python.
 
 > **Project status:** Early development. The current implementation includes `Context`, `Message`, `Channel`, and `User` models, along with bot event and command handling. The API may change as development continues.
 
