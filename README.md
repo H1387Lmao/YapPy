@@ -17,29 +17,15 @@ YapPy brings a Python-friendly interface to [Yapper](https://yapper.website), a 
 
 ## Installation
 
-Install YapPy using your project's preferred method.
-
-If the package is available on PyPI:
 
 ```bash
-pip install yappy
-```
-
-If you are working from a local checkout, install the project from its repository directory:
-
-```bash
-pip install .
-```
-
-The example below uses [`python-dotenv`](https://pypi.org/project/python-dotenv/) to load the bot token from a `.env` file:
-
-```bash
-pip install python-dotenv
+pip install python-yappy
 ```
 
 ## Quick start
 
-Create a file named `bot.py`:
+This example uses the dotenv module from `pip install load_dotenv`
+Create a file named `main.py`:
 
 ```python
 import os
@@ -57,7 +43,8 @@ async def on_message(ctx):
     if ctx.is_bot:
         return
 
-    await ctx.reply("Hi!")
+    if ctx.content.lower.startswith("hello"):
+        await ctx.reply("Hi!")
 
 
 @bot.command(
