@@ -28,32 +28,36 @@ This example uses the dotenv module from `pip install load_dotenv`
 Create a file named `main.py`:
 
 ```python
-import os
-
-from dotenv import load_dotenv
 from yappy import App
-
+import os
+from dotenv import load_dotenv
 load_dotenv()
-
 bot = App(verbose=True)
-
-
-@bot.event("message")
+@bot.event(
+	"message"
+)
 async def on_message(ctx):
-    if ctx.is_bot:
-        return
-
-    if ctx.message.content.lower().startswith("hello"):
-        await ctx.reply("Hi!")
-
-
+	if ctx.is_bot:
+		return
+	await bot.process_command(ctx)
 @bot.command(
-    name="ping",
-    description="replies with 'Pong!'",
+	name="ping",
+    description="replies with 'Pong!'"
 )
 async def ping(ctx):
-    await ctx.reply("Pong!")
+	await ctx.reply("Pong!")	
 
+@bot.command(
+	name="react",
+	description="React your message with a certain emoji!"
+)
+async def react(ctx, emoji: str):
+	await ctx.message.react(emoji)
+@bot.event(
+	"ready"
+)
+async def on_ready():
+	print("Logged as", bot.user.name)
 
 bot.run(os.getenv("TOKEN"))
 ```
@@ -99,7 +103,7 @@ async def on_message(ctx):
     if ctx.is_bot:
         return
 
-    await ctx.reply("Hello!")
+    await ctx.process.command(ctx)
 ```
 
 The event name and handler arguments should match the event interface supported by the installed YapPy version.
@@ -129,6 +133,8 @@ YapPy currently provides these core models:
 | `Message` | Represents a message. |
 | `Channel` | Represents a channel. |
 | `User` | Represents a user. |
+| `Guild` | Represents a guild / server |
+| `Role` | Represents a role |
 
 The example uses the context object (`ctx`) to check `ctx.is_bot` and send a reply with `ctx.reply(...)`. Consult the source code for the currently available attributes and methods of each model.
 

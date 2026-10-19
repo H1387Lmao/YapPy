@@ -30,17 +30,33 @@ async def api_push(session: aiohttp.ClientSession, method: str, path: str, body=
             return await api_push(session, method, path, body, tries - 1)
                     
         raise RuntimeError(f"{method} {path} failed ({e.status}): {msg or e.message}") from None
-        
-class api:
+
+class API:
     @staticmethod
-    async def put(session, path="", body=None, tries=3):
-        await api_push(session, "PUT", path, body, tries)
+    async def _request(session, method, path="", body=None, tries=3):
+        return await api_push(session, method, path, body, tries)
+
     @staticmethod
     async def get(session, path="", body=None, tries=3):
-        return await api_push(session, "GET", path, body, tries)
+        return await API._request(session, "GET", path, body, tries)
+
     @staticmethod
     async def post(session, path="", body=None, tries=3):
-        await api_push(session, "POST", path, body, tries)
+        return await API._request(session, "POST", path, body, tries)
+
     @staticmethod
-    async def send(session, channel_id=0, data=None, tries=3):
-        await api_push(session, "POST", f"/channels/{channel_id}/messages", data, tries)
+    async def put(session, path="", body=None, tries=3):
+        return await API._request(session, "PUT", path, body, tries)
+
+    @staticmethod
+    async def patch(session, path="", body=None, tries=3):
+        return await API._request(session, "PATCH", path, body, tries)
+
+    @staticmethod
+    async def delete(session, path="", body=None, tries=3):
+        return await API._request(session, "DELETE", path, body, tries)
+
+    @staticmethod
+    async def send(session, channel_id=0, body=None, tries=3):
+        return await API._request(session, "POST", f"/channels/{channel_id}/messages", body, tries)
+        
