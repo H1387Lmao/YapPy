@@ -29,6 +29,14 @@ async def ping(ctx):
 async def react(ctx, emoji: str):
     await ctx.message.react(emoji)
 
+@bot.command(
+    name="add",
+    description="Adds two numbers"
+)
+async def add(ctx, a: int, b: int = 0):
+    # try "!add", "!add x" or "!add 1 2 3" to see the argument errors
+    await ctx.reply(f"{a} + {b} = {a + b}")
+
 @bot.event(
     "ready"
 )

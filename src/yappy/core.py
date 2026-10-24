@@ -1,7 +1,14 @@
 from .api import *
 from typing import Callable
+import inspect
+import logging
+import typing
 import urllib.parse
+from dataclasses import dataclass
+from .errors import InvalidSignature, MissingArgument, TooManyArguments
 from .utils import get_asset_url
+
+log = logging.getLogger(__name__)
 
 class Assets:
     def __init__(self,
@@ -39,6 +46,13 @@ class Bot(User):
         super().__init__(**kwargs)
         self.owner_id = owner_id
 
+@dataclass(frozen=True)
+class CommandParam:
+    """One argument a command accepts (not counting ``ctx``)."""
+    name: str
+    annotation: object = inspect.Parameter.empty
+    required: bool = True
+
 class Command:
     def __init__(self,
         name: str,
@@ -50,6 +64,65 @@ class Command:
         self.aliases = aliases
         self.description = description
         self.func = func
+
+        self.params: list[CommandParam] = []
+        self.var_positional: CommandParam | None = None
+        if func is not None:
+            self._inspect_signature()
+
+    def _inspect_signature(self):
+        P = inspect.Parameter
+        params = list(inspect.signature(self.func).parameters.values())
+
+        if not params or params[0].kind not in (
+            P.POSITIONAL_ONLY, P.POSITIONAL_OR_KEYWORD
+        ):
+            raise InvalidSignature(
+                f"Command '{self.name}' must accept 'ctx' as its first argument!"
+            )
+
+        try:
+            hints = typing.get_type_hints(self.func)
+        except Exception:
+            # unresolvable annotations: treat them as "no annotation"
+            hints = {}
+
+        for p in params[1:]:
+            ann = hints.get(p.name, p.annotation)
+            if p.kind in (P.POSITIONAL_ONLY, P.POSITIONAL_OR_KEYWORD):
+                self.params.append(
+                    CommandParam(p.name, ann, p.default is P.empty)
+                )
+            elif p.kind is P.VAR_POSITIONAL:
+                self.var_positional = CommandParam(p.name, ann, False)
+            elif p.kind is P.KEYWORD_ONLY and p.default is P.empty:
+                raise InvalidSignature(
+                    f"Command '{self.name}' has a required keyword-only "
+                    f"argument '{p.name}', which can't be filled from chat!"
+                )
+
+    def param_for(self, index: int) -> CommandParam | None:
+        """The parameter that the argument at ``index`` is bound to."""
+        if index < len(self.params):
+            return self.params[index]
+        return self.var_positional
+
+    def check_arguments(self, args: list):
+        """Raise if ``args`` doesn't fit this command's parameters."""
+        required = sum(1 for p in self.params if p.required)
+        if len(args) < required:
+            raise MissingArgument(self.params[len(args)].name, command=self)
+        if self.var_positional is None and len(args) > len(self.params):
+            raise TooManyArguments(len(self.params), len(args), command=self)
+
+    def usage(self, prefix: str = "") -> str:
+        parts = [
+            f"<{p.name}>" if p.required else f"[{p.name}]"
+            for p in self.params
+        ]
+        if self.var_positional is not None:
+            parts.append(f"[{self.var_positional.name}...]")
+        return " ".join([f"{prefix}{self.name}", *parts])
 
 class Permissions:
     def __init__(self, **perms):
@@ -104,42 +177,50 @@ class Guild:
         }}
 
         for m in members:
-            self._cache[m.id] = m
+            if m.id is not None:
+                self._cache["members"][m.id] = m
             m. guild = self
     async def find_member(self, mid):
         member = self.get_member(mid)
         if member is None:
-            _user_data = (await API.get(
-                self.bot.session,
-                f"/servers/{self.id}/members/{mid}"
-            ))["member"]
-
-            roles = [
-                self._cache["roles"][role_id]
-                for role_id in _user_data["roles"]
-                if role_id in self._cache["roles"]
-            ]
-            
-            member = Member(
-                bot=self.bot,
-                guild=self, roles=roles,
-                id=id,
-                name = _user_data["username"],
-                display_name = _user_data["display_name"],
-                badges = _user_data["badges"],
-                joined_at = _user_data["joined_at"],
-                nickname = _user_data["nickname"],
-                assets = Assets(
-                    avatar = "https://files.yapper.website/avatars/"+_user_data.get("avatar_path",""),
-                    banner = "https://files.yapper.website/banners/"+_user_data.get("banner_path", "")
-                ),
+            # concurrent lookups of the same member share one request
+            member = await self.bot._once(
+                ("member", self.id, mid), self._load_member, mid
             )
-
-            self._cache["members"][mid] = member
-            
         return member
+
+    async def _load_member(self, mid):
+        _user_data = (await API.get(
+            self.bot.session,
+            f"/servers/{self.id}/members/{mid}"
+        ))["member"]
+
+        roles = [
+            self._cache["roles"][role_id]
+            for role_id in _user_data["roles"]
+            if role_id in self._cache["roles"]
+        ]
+
+        member = Member(
+            bot=self.bot,
+            guild=self, roles=roles,
+            id=mid,
+            name = _user_data["username"],
+            display_name = _user_data["display_name"],
+            badges = _user_data["badges"],
+            joined_at = _user_data["joined_at"],
+            nickname = _user_data["nickname"],
+            assets = Assets(
+                avatar = "https://files.yapper.website/avatars/"+_user_data.get("avatar_path",""),
+                banner = "https://files.yapper.website/banners/"+_user_data.get("banner_path", "")
+            ),
+        )
+
+        self._cache["members"][mid] = member
+        return member
+
     def get_member(self, mid):
-        return self._cache.get(mid, None)
+        return self._cache["members"].get(mid, None)
 
 class Channel:
     def __init__(self,

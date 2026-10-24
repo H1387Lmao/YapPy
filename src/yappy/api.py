@@ -1,7 +1,11 @@
 from .consts import BASE_URL
 import aiohttp
+import logging
 import random
 import asyncio
+import time
+
+log = logging.getLogger(__name__)
 
 async def api_push(session: aiohttp.ClientSession, method: str, path: str, body=None, tries=3):
     headers = {
@@ -9,10 +13,17 @@ async def api_push(session: aiohttp.ClientSession, method: str, path: str, body=
         "Content-Type": "application/json"
     }
 
+    started = time.perf_counter()
     try:
         async with session.request(method, BASE_URL + path, json=body, headers=headers, timeout=40) as r:
             r.raise_for_status()
-            return await r.json()
+            data = await r.json()
+        if not path.startswith("/events"):  # the long poll would be noise
+            log.debug(
+                "%s %s -> %s (%.0f ms)", method, path, r.status,
+                (time.perf_counter() - started) * 1000
+            )
+        return data
     except aiohttp.ClientResponseError as e:
         try:
             err = await e.history[-1].json() if e.history else {}
@@ -25,8 +36,12 @@ async def api_push(session: aiohttp.ClientSession, method: str, path: str, body=
         wait = int(e.headers.get("Retry-After") or 0) if e.status == 429 or busy else 0
                 
         if 0 < wait <= 60 and tries > 1:
-            print(f"{'busy' if busy else 'rate limited'}, retrying in {wait}s")
-            await asyncio.sleep(wait * (1 + random.random() * 0.5))
+            delay = wait * (1 + random.random() * 0.5)
+            log.warning(
+                "%s on %s %s, retrying in %.1fs",
+                "Server busy" if busy else "Rate limited", method, path, delay
+            )
+            await asyncio.sleep(delay)
             return await api_push(session, method, path, body, tries - 1)
                     
         raise RuntimeError(f"{method} {path} failed ({e.status}): {msg or e.message}") from None

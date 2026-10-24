@@ -13,7 +13,8 @@ YapPy brings a Python-friendly interface to [Yapper](https://yapper.website), a 
 - **Commands** — register named commands with descriptions.
 - **Context-based interactions** — reply to messages through a context object.
 - **Core models** — work with `Context`, `Message`, `Channel`, and `User` objects.
-- **Optional logging** — enable verbose output when creating the application.
+- **Argument validation** — type-hinted command parameters are converted for you, and mistakes get a helpful reply.
+- **Rich logging** — coloured logs and readable tracebacks; `verbose=True` adds debug output.
 
 ## Installation
 
@@ -103,7 +104,7 @@ async def on_message(ctx):
     if ctx.is_bot:
         return
 
-    await ctx.process.command(ctx)
+    await bot.process_command(ctx)
 ```
 
 The event name and handler arguments should match the event interface supported by the installed YapPy version.
@@ -122,6 +123,66 @@ async def ping(ctx):
 ```
 
 The `name` identifies the command, and `description` describes its purpose. Command registration and invocation behavior depend on the current implementation.
+
+### Command arguments
+
+Arguments from the message are matched to your function's parameters. Add type hints and YapPy converts them for you:
+
+```python
+@bot.command(name="add", description="Adds two numbers")
+async def add(ctx, a: int, b: int = 0):
+    await ctx.reply(f"{a} + {b} = {a + b}")
+```
+
+| Annotation | Accepts |
+| --- | --- |
+| `str` | the text exactly as typed (use `"quotes"` for spaces) |
+| `int`, `float` | numbers |
+| `bool` | `true`/`false`, `yes`/`no`, `on`/`off`, `1`/`0` |
+| `User`, `Channel`, `Role` | a mention such as `<@123>` |
+| *(none)* | guessed: whole numbers become `int`, decimals `float`, mentions are resolved, anything else is `str` |
+
+Parameters with a default are optional, and `*args` collects any remaining arguments.
+
+### Command errors
+
+If someone uses a command the wrong way, the bot tells them instead of failing silently:
+
+```text
+!add
+Missing required argument 'a'.
+Usage: `!add <a> [b]`
+```
+
+Too many arguments and values of the wrong type are handled the same way. Unknown commands are ignored, and an exception raised inside a command is logged rather than sent to chat.
+
+To handle these yourself, register a `command_error` handler. It replaces the default replies:
+
+```python
+from yappy import UnknownCommand
+
+@bot.event("command_error")
+async def on_command_error(ctx, error):
+    if isinstance(error, UnknownCommand):
+        return
+    await ctx.reply(str(error))
+```
+
+`error` is one of `UnknownCommand`, `MissingArgument`, `TooManyArguments`, `BadArgument` or `CommandInvokeError` (all subclasses of `yappy.CommandError`). For `CommandInvokeError`, the exception your command raised is `error.original`, and `error.command` is the command involved.
+
+### Logging
+
+YapPy logs through Python's `logging` module under the name `yappy` and prints it with [Rich](https://github.com/Textualize/rich). Exceptions appear as readable tracebacks. `App(verbose=True)` also shows debug output: events, HTTP requests and command invocations.
+
+To configure logging yourself, create the app with `configure_logging=False`:
+
+```python
+import logging
+from yappy import App, setup_logging
+
+bot = App(configure_logging=False)
+setup_logging(level=logging.WARNING, show_locals=True)  # or attach your own handlers to logging.getLogger("yappy")
+```
 
 ### Context and models
 
