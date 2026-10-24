@@ -39,6 +39,11 @@
       "title": "Optional verbose logging",
       "desc": "Enable verbose output when creating the application to help inspect behavior during development.",
       "code": "bot = App(verbose=True)"
+    },
+    {
+      "title": "Embeds",
+      "desc": "Message embeds using yappy.Embed",
+      "code": "import yappy\nbot = yappy.App(verbose=True)\n@bot.command(\n  name=\"send_embed\"\n  description\n)\nasync def send_embed(ctx):\n  embed = yappy.Embed(\"title\")\n  embed.add_field(\"Test Field\", \"1\")\n  embed.add_footer(\"My Footer\")\n  await ctx.reply(embeds=[embed])"
     }
   ]
 }

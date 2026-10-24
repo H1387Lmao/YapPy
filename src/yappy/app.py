@@ -5,6 +5,7 @@ from .errors import (
     CommandError, CommandInvokeError, ImproperToken, InvalidSignature,
     UnknownCommand,
 )
+from .embed import Embed
 from .logger import setup_logging
 from .parser import parser
 
@@ -524,4 +525,5 @@ class App:
             asyncio.run(self._event_loop())
         except KeyboardInterrupt:
             log.info("Shutting down")
-__all__=["App"]
+
+__all__=["App", "Embed"]

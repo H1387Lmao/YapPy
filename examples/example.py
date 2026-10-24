@@ -1,4 +1,5 @@
-from yappy import App
+from yappy import App, Embed
+
 import os
 from dotenv import load_dotenv
 
@@ -34,8 +35,28 @@ async def react(ctx, emoji: str):
     description="Adds two numbers"
 )
 async def add(ctx, a: int, b: int = 0):
-    # try "!add", "!add x" or "!add 1 2 3" to see the argument errors
     await ctx.reply(f"{a} + {b} = {a + b}")
+
+@bot.command(
+    name="send_embed",
+)
+async def send_embed(ctx):
+    embed = Embed(
+        "Embed",
+        description="My Embed",
+        color="#FF1818"
+    )
+    embed.add_field("Test1", "1")
+    embed.add_field("Test2", "2")
+    embed.add_field("Test3", "3")
+
+    embed.set_footer("My Footer", None)
+
+    await ctx.send(
+        embeds=[
+            embed
+        ]
+    )
 
 @bot.event(
     "ready"

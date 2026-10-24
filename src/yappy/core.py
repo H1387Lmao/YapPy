@@ -244,7 +244,7 @@ class Channel:
         self.guild = guild
         self.read_only = read_only
         
-    async def send(self, content, embeds=[], components=[]):
+    async def send(self, content="", embeds=[], components=[]):
         await API.send(
             self.bot.session, self.id, {
                 "content": content,
@@ -306,7 +306,7 @@ class Message:
         self.content = content
 
         self.author = author
-    async def reply(self, content, embeds=[], components=[]):
+    async def reply(self, content="", embeds=[], components=[]):
         await API.send(
             self.bot.session, self.channel.id, {
                 "content": content,
@@ -317,14 +317,14 @@ class Message:
         )
     async def delete(self):
         await API.delete(self.bot.session, f"/channels/{self.channel.id}/messages/{self.id}")
-    async def edit(self, content, embeds=[], components=[]):
+    async def edit(self, content='', embeds=[], components=[]):
         await API.patch(self.bot.session, f"/channels/{self.channels.id}/messages/{self.id}", {
             "content": content,
             "embeds": embeds,
             "components": components
         })
-    async def send(self, content, embeds=[], components=[]):
-        await self.channel.send(*args, **kwargs)
+    async def send(self, content="", embeds=[], components=[]):
+        await self.channel.send(content=content, embeds=embeds)
     async def react(self, emoji):
         return await API.put(
             self.bot.session,

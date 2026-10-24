@@ -1,4 +1,6 @@
 from .consts import BASE_URL
+from .utils import serialize
+
 import aiohttp
 import logging
 import random
@@ -12,6 +14,9 @@ async def api_push(session: aiohttp.ClientSession, method: str, path: str, body=
         "Authorization": f"Bot {session._bearer_token}",
         "Content-Type": "application/json"
     }
+
+    if body:
+        body = serialize(body)
 
     started = time.perf_counter()
     try:
