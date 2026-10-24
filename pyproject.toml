@@ -1,6 +1,6 @@
 [project]
 name = "python-yappy"
-version = "0.1.1"
+version = "0.1.2"
 description = "API Bindings for Yapper!"
 readme = "README.md"
 authors = [
@@ -13,6 +13,11 @@ dependencies = [
     "rich>=13.0",
     "uv-build>=0.13.1",
 ]
+
+[project.urls]                                    
+Homepage = "https://github.com/H1387Lmao/YapPy"
+Repository = "https://github.com/H1387Lmao/YapPy"
+BugTracker = "https://github.com/H1387Lmao/YapPy/issues"
 
 [tool.uv.build-backend]
 module-name = "yappy"

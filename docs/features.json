@@ -1,0 +1,44 @@
+{
+  "features": [
+    {
+      "title": "Python-first application",
+      "desc": "Create an application instance and configure optional verbose logging. The App object is the entry point for registering bot behavior.",
+      "code": "from yappy import App\n\nbot = App(verbose=True)",
+      "button": {
+        "label": "Install YapPy",
+        "type": "action",
+        "action": "copy-install",
+        "value": "python -m pip install python-yappy"
+      }
+    },
+    {
+      "title": "Event handlers",
+      "desc": "Register an asynchronous callback for an event such as an incoming message. The current starter interface passes a context object to the callback.",
+      "code": "@bot.event(\"message\")\nasync def on_message(ctx):\n    if ctx.is_bot:\n        return\n    await ctx.reply(\"Hi!\")"
+    },
+    {
+      "title": "Command registration",
+      "desc": "Use the command decorator to register a named command and provide a human-readable description.",
+      "code": "@bot.command(name=\"ping\", description=\"Replies with Pong!\")\nasync def ping(ctx):\n    await ctx.reply(\"Pong!\")"
+    },
+    {
+      "title": "Context and core models",
+      "desc": "The current implementation includes Context, Message, Channel, and User models to represent common objects used while handling bot interactions.",
+      "button": {
+        "label": "Browse source on GitHub",
+        "type": "link",
+        "href": "https://github.com/H1387Lmao/YapPy"
+      }
+    },
+    {
+      "title": "Context-based replies",
+      "desc": "Reply to a message from a handler through the context object, keeping the interaction code concise.",
+      "code": "async def on_message(ctx):\n    await ctx.reply(\"Thanks for your message!\")"
+    },
+    {
+      "title": "Optional verbose logging",
+      "desc": "Enable verbose output when creating the application to help inspect behavior during development.",
+      "code": "bot = App(verbose=True)"
+    }
+  ]
+}

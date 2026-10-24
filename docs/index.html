@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11100e">
+  <meta name="description" content="Documentation for YapPy, a Python API binding for Yapper.">
+  <title>YapPy - Documentation</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#home" aria-label="YapPy documentation home">
+        <span class="brand-mark">Y</span><span>YapPy<span class="brand-sub">DOCUMENTATION</span></span>
+      </a>
+      <div class="sidebar-label">GETTING STARTED</div>
+      <nav class="nav">
+        <a href="#home" class="nav-link active" data-page="home"><span class="nav-icon">⌂</span> Overview</a>
+        <a href="#installation" class="nav-link" data-page="installation"><span class="nav-icon">↓</span> Installation</a>
+        <a href="#quickstart" class="nav-link" data-page="quickstart"><span class="nav-icon">⌘</span> Quick start</a>
+      </nav>
+      <div class="sidebar-label">REFERENCE</div>
+      <nav class="nav">
+        <a href="#features" class="nav-link" data-page="features"><span class="nav-icon">✳</span> Features</a>
+        <a href="#examples" class="nav-link" data-page="examples"><span class="nav-icon">{ }</span> Examples</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="status-dot"></div>
+        <div><strong>Early development</strong><small>API may change between releases.</small></div>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation">☰</button>
+        <div class="breadcrumbs"><span>YapPy</span><span class="crumb-sep">/</span><span id="current-section">Overview</span></div>
+        <div class="top-actions">
+          <a class="top-link" href="https://github.com/H1387Lmao/YapPy" target="_blank" rel="noreferrer">GitHub <span>↗</span></a>
+          <a class="star-link" href="https://github.com/H1387Lmao/YapPy" target="_blank" rel="noreferrer">View repo <span>↗</span></a>
+        </div>
+      </header>
+      <div class="content" id="content">
+        <section class="page active" id="page-home" data-title="Overview">
+          <div class="eyebrow"><span class="eyebrow-line"></span> PYTHON API BINDING</div>
+          <h1>Build for Yapper.<br><span class="gradient-text">Write it in Python.</span></h1>
+          <p class="lead">YapPy is a Python-friendly API binding for Yapper, built around familiar models, asynchronous event handlers, and command decorators.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#installation">Get started <span>→</span></a>
+            <a class="button button-secondary" href="https://github.com/H1387Lmao/YapPy" target="_blank" rel="noreferrer">Explore source ↗</a>
+          </div>
+          <div class="terminal-card">
+            <div class="terminal-top"><div class="window-dots"><i></i><i></i><i></i></div><span>terminal</span><button class="copy-button" data-copy="pip install python-yappy">Copy</button></div>
+            <pre><code><span class="tok-muted">$</span> pip install python-yappy</code></pre>
+          </div>
+          <div class="section-heading"><div><span class="eyebrow">THE BASICS</span><h2>A familiar way to build bots</h2></div><span class="heading-mark">✳</span></div>
+          <div class="feature-grid">
+            <article class="mini-card"><span class="card-icon orange">⌁</span><h3>Python-first API</h3><p>Write bot behavior with async functions and a straightforward application object.</p></article>
+            <article class="mini-card"><span class="card-icon yellow">↯</span><h3>Event handlers</h3><p>Register handlers for incoming Yapper events without building the dispatch flow yourself.</p></article>
+            <article class="mini-card"><span class="card-icon gradient">⌘</span><h3>Commands</h3><p>Define named commands with descriptions using a decorator-style interface.</p></article>
+          </div>
+          <div class="callout"><span class="callout-icon">i</span><p><strong>Project status</strong><br>YapPy is in early development. Check the repository and release notes before relying on an API in production.</p></div>
+        </section>
+
+        <section class="page" id="page-installation" data-title="Installation">
+          <div class="eyebrow"><span class="eyebrow-line"></span> GETTING STARTED</div>
+          <h1>Installation</h1>
+          <p class="lead">Install YapPy from PyPI, then create a small bot application to get started.</p>
+          <h2>Requirements</h2>
+          <ul class="check-list"><li>Python <strong>3.14 or newer</strong> for the currently published package.</li><li>A Yapper bot token from your developer settings.</li><li>Network access to the Yapper API.</li></ul>
+          <h2>Install from PyPI</h2>
+          <p>Run this command in your environment:</p>
+          <div class="code-card"><div class="code-head"><span>shell</span><button class="copy-button" data-copy="python -m pip install python-yappy">Copy</button></div><pre><code>python -m pip install python-yappy</code></pre></div>
+          <h2>Set your token</h2>
+          <p>Keep your bot token private. An environment variable is preferable to placing it directly in source code.</p>
+          <div class="code-card"><div class="code-head"><span>bash / zsh</span><button class="copy-button" data-copy="export YAPPER_BOT_TOKEN='your-token-here'">Copy</button></div><pre><code>export YAPPER_BOT_TOKEN='your-token-here'</code></pre></div>
+        </section>
+
+        <section class="page" id="page-quickstart" data-title="Quick start">
+          <div class="eyebrow"><span class="eyebrow-line"></span> YOUR FIRST BOT</div>
+          <h1>Quick start</h1>
+          <p class="lead">Create an application, listen for messages, and register a command.</p>
+          <div class="code-card"><div class="code-head"><span>bot.py</span><button class="copy-button" data-copy-id="quick-code">Copy</button></div><pre><code id="quick-code" class="python-code">import os
+from yappy import App
+
+bot = App(verbose=True)
+
+@bot.event("message")
+async def on_message(ctx):
+    if ctx.is_bot:
+        return
+    await ctx.reply("Hi!")
+
+@bot.command(name="ping", description="Replies with Pong!")
+async def ping(ctx):
+    await ctx.reply("Pong!")
+
+bot.run(os.getenv("YAPPER_BOT_TOKEN"))</code></pre></div>
+          <h2>Run the bot</h2>
+          <div class="code-card"><div class="code-head"><span>shell</span><button class="copy-button" data-copy="python bot.py">Copy</button></div><pre><code>python bot.py</code></pre></div>
+          <p>This example follows the current public project interface. Confirm event names, callback arguments, and command behavior against the version installed in your environment.</p>
+          <div class="next-card"><div><span class="eyebrow">NEXT</span><h3>Explore the feature catalog</h3><p>See the currently documented capabilities and usage snippets.</p></div><a href="#features" class="button button-primary">Browse features →</a></div>
+        </section>
+
+        <section class="page" id="page-features" data-title="Features">
+          <div class="eyebrow"><span class="eyebrow-line"></span> REFERENCE</div>
+          <h1>Features</h1>
+          <p class="lead">A growing catalog of YapPy capabilities. Feature cards are loaded from <code>features.json</code>, so you can add documentation without editing the page layout.</p>
+          <div class="feature-controls"><div class="search-box"><span>⌕</span><input id="feature-search" type="search" placeholder="Search features..." aria-label="Search features"></div><span id="feature-count" class="result-count"></span></div>
+          <div id="feature-list" class="feature-list"><div class="loading">Loading feature catalog…</div></div>
+          <p class="small-note">Feature availability can vary by release. This catalog describes the documented project surface, not a guarantee that every capability is production-ready.</p>
+        </section>
+
+        <section class="page" id="page-examples" data-title="Examples">
+          <div class="eyebrow"><span class="eyebrow-line"></span> LEARN BY EXAMPLE</div>
+          <h1>Examples</h1>
+          <p class="lead">Small starting points for common bot patterns.</p>
+          <div class="example-card"><div class="example-title"><div><span class="example-number">01</span><h3>Respond to a message</h3></div><span class="tag">EVENT</span></div><p>Listen for incoming messages and ignore messages sent by bots.</p><div class="code-card"><div class="code-head"><span>Python</span><button class="copy-button" data-copy-id="example-message">Copy</button></div><pre><code id="example-message" class="python-code">@bot.event("message")
+async def on_message(ctx):
+    if ctx.is_bot:
+        return
+    await ctx.reply("Hi!")</code></pre></div></div>
+          <div class="example-card"><div class="example-title"><div><span class="example-number">02</span><h3>Register a command</h3></div><span class="tag tag-orange">COMMAND</span></div><p>Give a command a name and a short description.</p><div class="code-card"><div class="code-head"><span>Python</span><button class="copy-button" data-copy-id="example-command">Copy</button></div><pre><code id="example-command" class="python-code">@bot.command(name="ping", description="Replies with Pong!")
+async def ping(ctx):
+    await ctx.reply("Pong!")</code></pre></div></div>
+        </section>
+        <footer class="footer"><span>YapPy Documentation</span><span>Built with HTML, CSS & vanilla JavaScript</span><a href="https://github.com/H1387Lmao/YapPy" target="_blank" rel="noreferrer">GitHub ↗</a></footer>
+      </div>
+    </main>
+  </div>
+  <div class="mobile-scrim" id="mobile-scrim"></div>
+  <script src="app.js"></script>
+</body>
+</html>
